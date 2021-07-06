@@ -5,7 +5,7 @@ var isChannelReady = false;
 var isInitiator = false;
 var isStarted = false;
 var localStream;
-var pc;
+var pc; 
 var remoteStream;
 var turnReady;
 
