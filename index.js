@@ -1,6 +1,7 @@
 'use strict';
 
-//Loading dependencies & initializing express
+//Loading dependencies & i
+//Itializing express
 var express = require('express');
 var app = express();
 var http = require('http');
@@ -13,6 +14,8 @@ app.use(express.static('public'))
 app.get("/", function(req, res){
 	res.render("index.ejs");
 });
+
+
 
 var server = http.createServer(app);
 
@@ -49,23 +52,32 @@ io.sockets.on('connection', function(socket) {
 	  log('Room ' + room + ' now has ' + numClients + ' client(s)');
   
 	  if (numClients === 0) {
+		log('1st client joined room');
 		socket.join(room);
 		log('Client ID ' + socket.id + ' created room ' + room);
 		socket.emit('created', room, socket.id);
   
 	  } else if (numClients === 1) {
+		log('2nd client joined room');
 		log('Client ID ' + socket.id + ' joined room ' + room);
 		io.sockets.in(room).emit('join', room);
 		socket.join(room);
 		socket.emit('joined', room, socket.id);
-		io.sockets.in(room).emit('ready');
+		//io.sockets.in(room).emit('ready');
 	  } else { // max two clients
 		socket.emit('full', room);
+	    socket.disconnect();		
 	  }
 	});
   
-	socket.on('bye', function(){
-	  console.log('received bye');
+	socket.on('bye', function(room){
+	  log('received bye');
+	  socket.leave(room);
+	  socket.disconnect();
+	  var clientsInRoom = io.sockets.adapter.rooms[room];
+	  var numClients = clientsInRoom ? Object.keys(clientsInRoom).length : 0;
+	  console.log('No of clients', numClients);
+	
 	});
   
-  });
+});

@@ -36,6 +36,9 @@ socket.on('created', function(room) {
 
 socket.on('full', function(room) {
   console.log('Room ' + room + ' is full');
+  
+  //localStream.getTracks().forEach(track => track.stop());
+  
 });
 
 socket.on('join', function (room){
@@ -201,16 +204,20 @@ function handleRemoteStreamRemoved(event) {
 
 function hangup() {
   console.log('Hanging up.');
+  localStream.getTracks().forEach(track => track.stop());
   stop();
   sendMessage('bye',room);
+  socket.emit('bye',room);
+
 }
 
 function handleRemoteHangup() {
   console.log('Session terminated.');
   stop();
+  localStream.getTracks().forEach(track => track.stop());
   isInitiator = false;
+  socket.emit('bye',room);
 }
-
 function stop() {
   isStarted = false;
   pc.close();
@@ -226,4 +233,5 @@ let isVideo = true
 function stopVideo() {
     isVideo = !isVideo
     localStream.getVideoTracks()[0].enabled = isVideo
+    
 }
